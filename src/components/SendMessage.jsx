@@ -1,7 +1,9 @@
-import { getDatabase, ref, set, onValue } from "firebase/database";
+import { addDoc, collection, serverTimestamp } from "firebase/firestore";
+import { ref, push } from "firebase/database"
 import { useState } from "react"
 import { UserAuth } from "../context/AuthContext";
 import { db } from "../firebase";
+import { useFormAction } from "react-router-dom";
 
 const SendMessage = () => {
   const [value, setValue] = useState("");
@@ -22,43 +24,17 @@ const SendMessage = () => {
       return;
     }
 
-  }
 
-  set(ref(db, 'users/' + userId), {
-    username: userId,
-    email: email,
-
-  })
-    .then(() => {
-      // Data saved successfully!
-    })
-    .catch((error) => {
-      // The write failed...
-    });
-
-
-
-
-  async function sendQuestion(userId, question) {
-    const response = await fetch('http://localhost:8000/receive_question', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        user_id: userId,
-        question: question
-      })
-    });
-
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+    try {
+      const { uid, displayName } = currentUser;
+      sendQuestionToFirebase()
+    } catch (error) {
+      console.log(error);
     }
-
-    return response.json();
+    setValue("");
   }
 
-
+  
   function sendQuestionToFirebase(question, user_id) {
     let questionData = {
       question: question,
@@ -67,9 +43,8 @@ const SendMessage = () => {
       processed: false
     };
 
-    let questionLogRef = firebase.database().ref('question_log');
-
-    questionLogRef.push(questionData)
+    let questionLogRef = ref(db, 'question_log');
+    push(questionLogRef, questionData)
       .then(() => {
         console.log('Data updated successfully.');
       })
@@ -91,6 +66,7 @@ const SendMessage = () => {
     </div>
   )
 }
+
 
 
 export default SendMessage;

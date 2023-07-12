@@ -1,5 +1,5 @@
 import Message from "./Message";
-import { collection, query, onSnapshot, orderBy, limit } from "firebase/database";
+import { collection, query, onSnapshot, orderBy, limit } from "firebase/firestore";
 import { useEffect, useRef, useState } from "react";
 import { db } from "../firebase";
 
